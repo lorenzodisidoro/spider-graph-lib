@@ -74,8 +74,7 @@ Then add the dependency:
   <version>v1.0.0</version>
 </dependency>
 ```
-
-If the GitHub repository name is different, replace `spider-graph-lib` with the actual repository name.
+Open [jitpack.io](https://jitpack.io/#lorenzodisidoro/spider-graph-lib) for more details.
 
 ## Quick Start
 
