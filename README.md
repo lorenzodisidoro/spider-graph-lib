@@ -1,7 +1,5 @@
 # Spider Graph Lib
 
-![Spider Graph Lib banner](assets/spider-graph-banner.svg)
-
 `spider-graph-lib` is a small Java library for crawling a website and building an in-memory graph of pages and links.
 
 Each crawled page becomes a `PageNode`, and the full crawl result is exposed as a `PageGraph`. The library supports both synchronous and asynchronous traversal APIs and uses `jsoup` to fetch and parse HTML.
@@ -50,7 +48,7 @@ Then reference it from your project:
 
 ### Via JitPack
 
-Once the repository is pushed to GitHub and tagged, you can consume it through JitPack.
+The library can be consumed through JitPack.
 
 1. Push the repository to GitHub.
 2. Create and push a release tag, for example `v1.0.0`.
