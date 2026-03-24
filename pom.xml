@@ -3,7 +3,30 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.narae.spidergraph</groupId>
   <artifactId>spider-graph-lib</artifactId>
+  <version>1.0.2</version>
   <packaging>jar</packaging>
+  <name>Spider Graph Lib</name>
+  <description>Java library for crawling a website and building an in-memory graph of pages and links.</description>
+  <url>https://github.com/lorenzodisidoro/spider-graph-lib</url>
+  <licenses>
+    <license>
+      <name>MIT License</name>
+      <url>https://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <developers>
+    <developer>
+      <id>lorenzodisidoro</id>
+      <name>Lorenzo Di Sidoro</name>
+    </developer>
+  </developers>
+  <scm>
+    <url>https://github.com/lorenzodisidoro/spider-graph-lib</url>
+    <connection>scm:git:https://github.com/lorenzodisidoro/spider-graph-lib.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/lorenzodisidoro/spider-graph-lib.git</developerConnection>
+    <tag>v1.0.2</tag>
+  </scm>
   <build>
     <plugins>
       <plugin>
@@ -22,6 +45,32 @@
           </annotationProcessorPaths>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.3.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.6.3</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   <dependencyManagement>
@@ -38,9 +87,6 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-  <version>1.0.1</version>
-  <name>crawlwebgraph</name>
-  <url>http://maven.apache.org</url>
   <dependencies>
     <!-- jsoup -->
     <dependency>

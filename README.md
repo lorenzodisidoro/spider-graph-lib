@@ -42,7 +42,7 @@ Then reference it from your project:
 <dependency>
   <groupId>com.narae.spidergraph</groupId>
   <artifactId>spider-graph-lib</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
@@ -51,7 +51,7 @@ Then reference it from your project:
 The library can be consumed through JitPack.
 
 1. Push the repository to GitHub.
-2. Create and push a release tag, for example `v1.0.1`.
+2. Create and push a release tag, for example `v1.0.2`.
 3. Make sure the project is publicly available.
 
 Add the JitPack repository to the consumer project:
@@ -71,10 +71,17 @@ Then add the dependency:
 <dependency>
   <groupId>com.github.lorenzodisidoro</groupId>
   <artifactId>spider-graph-lib</artifactId>
-  <version>v1.0.1</version>
+  <version>v1.0.2</version>
 </dependency>
 ```
 Open [jitpack.io](https://jitpack.io/#lorenzodisidoro/spider-graph-lib) for more details.
+
+Release commands:
+
+```bash
+git tag v1.0.2
+git push origin main --tags
+```
 
 ## Quick Start
 
