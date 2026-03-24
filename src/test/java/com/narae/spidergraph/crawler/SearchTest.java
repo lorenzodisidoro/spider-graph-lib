@@ -56,6 +56,35 @@ public class SearchTest {
     }
 
     @Test
+    public void syncVisitsAllValidLinksOnTheSamePage() throws Exception {
+        Map<String, Document> documents = new HashMap<>();
+        Document rootDocument = html(
+                "https://example.com/root",
+                "Root",
+                "<a href='/first'>First</a><a href='/second'>Second</a>"
+        );
+        Document firstDocument = html("https://example.com/first", "First", "<p>First body</p>");
+        Document secondDocument = html("https://example.com/second", "Second", "<p>Second body</p>");
+        documents.put("https://example.com/root", rootDocument);
+        documents.put("https://example.com/first", firstDocument);
+        documents.put("https://example.com/second", secondDocument);
+
+        Search.setDocumentFetcher((url, settings) -> documents.get(url));
+
+        PageGraph graph = Search.sync("https://example.com/root", 0, settings(1, true, null));
+
+        PageNode rootNode = graph.getNodes().get("https://example.com/root");
+        PageNode firstNode = graph.getNodes().get("https://example.com/first");
+        PageNode secondNode = graph.getNodes().get("https://example.com/second");
+
+        assertEquals(3, graph.getNodes().size());
+        assertTrue(rootNode.getOutgoing().contains(firstNode));
+        assertTrue(rootNode.getOutgoing().contains(secondNode));
+        assertTrue(firstNode.getIncoming().contains(rootNode));
+        assertTrue(secondNode.getIncoming().contains(rootNode));
+    }
+
+    @Test
     public void asyncSkipsLinksOutsideConfiguredPrefix() throws Exception {
         Map<String, Document> documents = new HashMap<>();
         Document rootDocument = html(

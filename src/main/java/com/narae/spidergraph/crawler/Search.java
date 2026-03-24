@@ -166,7 +166,7 @@ public class Search {
             currentNode.setOutgoing(target);
             target.setIncoming(currentNode);
 
-            return sync(currentUrl, depth + 1, settings);
+            sync(currentUrl, depth + 1, settings);
         }
 
         return pageGraph;
