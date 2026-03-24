@@ -42,7 +42,7 @@ Then reference it from your project:
 <dependency>
   <groupId>com.narae.spidergraph</groupId>
   <artifactId>spider-graph-lib</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
@@ -51,7 +51,7 @@ Then reference it from your project:
 The library can be consumed through JitPack.
 
 1. Push the repository to GitHub.
-2. Create and push a release tag, for example `v1.0.0`.
+2. Create and push a release tag, for example `v1.0.1`.
 3. Make sure the project is publicly available.
 
 Add the JitPack repository to the consumer project:
@@ -71,7 +71,7 @@ Then add the dependency:
 <dependency>
   <groupId>com.github.lorenzodisidoro</groupId>
   <artifactId>spider-graph-lib</artifactId>
-  <version>v1.0.0</version>
+  <version>v1.0.1</version>
 </dependency>
 ```
 Open [jitpack.io](https://jitpack.io/#lorenzodisidoro/spider-graph-lib) for more details.
@@ -206,7 +206,7 @@ mvn package
 - Request throttling state is also shared in static crawler state, so separate crawl runs in the same JVM affect each other's pacing.
 - The current public API does not expose a reset method for crawler state between runs.
 - The library does not currently include `robots.txt` handling, sitemap support, or persistence.
-- Logging is enabled through SLF4J + Logback and may need customization depending on the host application.
+- The library logs through SLF4J; the host application is expected to provide the logging backend it prefers.
 
 ## Project Structure
 
@@ -219,4 +219,4 @@ src/main/java/com/narae/spidergraph/
 
 ## License
 
-No license file is currently included in this repository. Add one before publishing or distributing the library.
+This project is licensed under the MIT License. See [LICENSE](LICENSE).

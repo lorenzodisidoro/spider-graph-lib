@@ -24,7 +24,21 @@
       </plugin>
     </plugins>
   </build>
-  <version>1.0.0</version>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-core</artifactId>
+        <version>1.5.25</version>
+      </dependency>
+      <dependency>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.5.25</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  <version>1.0.1</version>
   <name>crawlwebgraph</name>
   <url>http://maven.apache.org</url>
   <dependencies>
@@ -42,11 +56,11 @@
       <version>2.0.9</version>
     </dependency>
 
-    <!-- Logback implementation -->
+    <!-- Logging backend only for local tests; consumers should choose their own SLF4J binding -->
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.4.11</version>
+      <scope>test</scope>
     </dependency>
 
     <dependency>
