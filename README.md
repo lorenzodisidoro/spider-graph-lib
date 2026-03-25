@@ -138,6 +138,7 @@ Available configuration methods:
 - `setVerifyHost(boolean verifyHost)`
 - `setUrlPrefix(String prefix)`
 - `setRequestDelay(int requestDelay)`
+- `setCrawlStepHook(Predicate<CrawlStepContext> hook)`
 
 Execution methods:
 
@@ -192,6 +193,35 @@ This delay is enforced inside `Search` for both:
 - `startAsynchronousSearch(...)`
 
 In asynchronous mode, the throttle is shared across all running crawl tasks, so concurrent branches are still paced globally instead of sending bursts of requests at the same time.
+
+## Stopping A Crawl Gracefully
+
+Use `setCrawlStepHook(...)` to inspect each parsed page and stop the crawl without losing the graph collected so far.
+
+```java
+PageGraph graph = SpiderGraph.crawler()
+        .setCrawlStepHook(context -> context.depth() < 2)
+        .startSynchronousSearch("https://example.com");
+```
+
+The hook is invoked after each page has been fetched and parsed. Returning `false` stops the crawl and returns the partial graph.
+
+Stop after collecting 50 nodes:
+
+```java
+PageGraph graph = SpiderGraph.crawler()
+        .setCrawlStepHook(context -> context.graph().getNodes().size() < 50)
+        .startSynchronousSearch("https://example.com");
+```
+
+Stop when a specific URL is visited:
+
+```java
+PageGraph graph = SpiderGraph.crawler()
+        .setCrawlStepHook(context ->
+                !context.node().getUrl().equals("https://example.com/stop-here"))
+        .startSynchronousSearch("https://example.com");
+```
 
 ## Development
 

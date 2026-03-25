@@ -11,6 +11,7 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
@@ -93,6 +94,75 @@ public class SpiderGraphTest {
 
         assertSame(graph, getSearchPageGraph());
         assertEquals(Set.of("https://example.com/root", "https://example.com/child"), graph.getNodes().keySet());
+    }
+
+    @Test
+    public void startSynchronousSearchStopsWhenConfiguredHookRequestsIt() throws Exception {
+        Map<String, Document> documents = new HashMap<>();
+        documents.put("https://example.com/root", html("https://example.com/root", "Root", "<a href='/child'>Child</a>"));
+        documents.put("https://example.com/child", html("https://example.com/child", "Child", "<a href='/grandchild'>Grandchild</a>"));
+        documents.put("https://example.com/grandchild", html("https://example.com/grandchild", "Grandchild", "<p>Done</p>"));
+
+        AtomicInteger hookCalls = new AtomicInteger();
+        Search.setDocumentFetcher((url, settings) -> documents.get(url));
+
+        PageGraph graph = SpiderGraph.crawler()
+                .setMaxDepth(2)
+                .setCrawlStepHook(context -> hookCalls.incrementAndGet() < 2)
+                .startSynchronousSearch("https://example.com/root");
+
+        assertEquals(2, hookCalls.get());
+        assertEquals(Set.of("https://example.com/root", "https://example.com/child"), graph.getNodes().keySet());
+    }
+
+    @Test
+    public void startSynchronousSearchCanStopAfterCollectingFiftyNodes() throws Exception {
+        Map<String, Document> documents = new HashMap<>();
+        for (int i = 0; i < 60; i++) {
+            String currentUrl = "https://example.com/page-" + i;
+            String body = i == 59
+                    ? "<p>Last page</p>"
+                    : "<a href='/page-" + (i + 1) + "'>Next</a>";
+            documents.put(currentUrl, html(currentUrl, "Page " + i, body));
+        }
+
+        Search.setDocumentFetcher((url, settings) -> documents.get(url));
+
+        PageGraph graph = SpiderGraph.crawler()
+                .setMaxDepth(60)
+                .setRequestDelay(0)
+                .setCrawlStepHook(context -> context.graph().getNodes().size() < 50)
+                .startSynchronousSearch("https://example.com/page-0");
+
+        assertEquals(50, graph.getNodes().size());
+        assertTrue(graph.getNodes().containsKey("https://example.com/page-49"));
+        assertTrue(graph.getNodes().get("https://example.com/page-49").getTitle().contains("Page 49"));
+        assertTrue(graph.getNodes().containsKey("https://example.com/page-0"));
+    }
+
+    @Test
+    public void startSynchronousSearchCanStopWhenSpecificUrlIsVisited() throws Exception {
+        Map<String, Document> documents = new HashMap<>();
+        documents.put("https://example.com/root", html("https://example.com/root", "Root", "<a href='/child'>Child</a>"));
+        documents.put("https://example.com/child", html("https://example.com/child", "Child", "<a href='/stop-here'>Stop</a>"));
+        documents.put("https://example.com/stop-here", html("https://example.com/stop-here", "Stop", "<a href='/after-stop'>After</a>"));
+        documents.put("https://example.com/after-stop", html("https://example.com/after-stop", "After", "<p>Done</p>"));
+
+        Search.setDocumentFetcher((url, settings) -> documents.get(url));
+
+        PageGraph graph = SpiderGraph.crawler()
+                .setMaxDepth(4)
+                .setRequestDelay(0)
+                .setCrawlStepHook(context ->
+                        !context.node().getUrl().equals("https://example.com/stop-here"))
+                .startSynchronousSearch("https://example.com/root");
+
+        assertEquals(Set.of(
+                "https://example.com/root",
+                "https://example.com/child",
+                "https://example.com/stop-here"
+        ), graph.getNodes().keySet());
+        assertTrue(graph.getNodes().containsKey("https://example.com/stop-here"));
     }
 
     private static Document html(String url, String title, String body) {

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.assertEquals;
@@ -176,6 +177,53 @@ public class SearchTest {
 
         assertEquals(2, graph.getNodes().size());
         assertEquals(List.of(2000L, 2300L), fetchTimes);
+    }
+
+    @Test
+    public void syncStopsGracefullyWhenHookReturnsFalse() throws Exception {
+        Map<String, Document> documents = new HashMap<>();
+        documents.put(
+                "https://example.com/root",
+                html(
+                        "https://example.com/root",
+                        "Root",
+                        "<a href='/first'>First</a><a href='/second'>Second</a>"
+                )
+        );
+        documents.put("https://example.com/first", html("https://example.com/first", "First", "<p>One</p>"));
+        documents.put("https://example.com/second", html("https://example.com/second", "Second", "<p>Two</p>"));
+
+        AtomicInteger hookCalls = new AtomicInteger();
+        Search.setDocumentFetcher((url, settings) -> documents.get(url));
+
+        CrawlerSettings settings = settings(1, true, null);
+        settings.setCrawlStepHook(context -> hookCalls.incrementAndGet() < 2);
+
+        PageGraph graph = Search.sync("https://example.com/root", 0, settings);
+
+        assertEquals(2, hookCalls.get());
+        assertEquals(Set.of("https://example.com/root", "https://example.com/first"), graph.getNodes().keySet());
+        assertFalse(graph.getNodes().containsKey("https://example.com/second"));
+    }
+
+    @Test
+    public void asyncStopsGracefullyWhenHookReturnsFalse() throws Exception {
+        Map<String, Document> documents = new HashMap<>();
+        documents.put("https://example.com/root", html("https://example.com/root", "Root", "<a href='/child'>Child</a>"));
+        documents.put("https://example.com/child", html("https://example.com/child", "Child", "<a href='/grandchild'>Grandchild</a>"));
+        documents.put("https://example.com/grandchild", html("https://example.com/grandchild", "Grandchild", "<p>Done</p>"));
+
+        AtomicInteger hookCalls = new AtomicInteger();
+        Search.setDocumentFetcher((url, settings) -> documents.get(url));
+
+        CrawlerSettings settings = settings(2, true, null);
+        settings.setCrawlStepHook(context -> hookCalls.incrementAndGet() < 2);
+
+        PageGraph graph = Search.async("https://example.com/root", 0, settings).join();
+
+        assertEquals(2, hookCalls.get());
+        assertEquals(Set.of("https://example.com/root", "https://example.com/child"), graph.getNodes().keySet());
+        assertFalse(graph.getNodes().containsKey("https://example.com/grandchild"));
     }
 
     private static CrawlerSettings settings(int maxDepth, boolean verifyRootHost, String urlPrefix) {

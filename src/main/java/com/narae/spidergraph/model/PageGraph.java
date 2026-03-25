@@ -21,10 +21,21 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PageGraph {
     private final Map<String, PageNode> nodes = new ConcurrentHashMap<>();
 
+    /**
+     * Returns the node associated with the URL, creating it if it does not exist yet.
+     *
+     * @param url the page URL used as key in the graph
+     * @return the existing or newly created page node
+     */
     public PageNode getOrCreate(String url) {
         return nodes.computeIfAbsent(url, PageNode::new);
     }
 
+    /**
+     * Returns the thread-safe map of crawled nodes keyed by URL.
+     *
+     * @return the graph nodes map
+     */
     public Map<String, PageNode> getNodes() {
         return nodes;
     }

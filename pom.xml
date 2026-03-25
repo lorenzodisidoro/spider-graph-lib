@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.narae.spidergraph</groupId>
   <artifactId>spider-graph-lib</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
   <packaging>jar</packaging>
   <name>Spider Graph Lib</name>
   <description>Java library for crawling a website and building an in-memory graph of pages and links.</description>
@@ -18,7 +18,7 @@
   <developers>
     <developer>
       <id>lorenzodisidoro</id>
-      <name>Lorenzo Di Sidoro</name>
+      <name>Lorenzo D'Isidoro</name>
     </developer>
   </developers>
   <scm>

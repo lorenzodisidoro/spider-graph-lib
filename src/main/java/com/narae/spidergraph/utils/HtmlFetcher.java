@@ -32,7 +32,9 @@ import static com.narae.spidergraph.utils.Constants.DEFAULT_USER_AGENT;
  */
 public class HtmlFetcher {
 
-
+    /**
+     * Configurable wrapper around {@link Jsoup#connect(String)} used to fetch documents.
+     */
     public static class Connector {
         private final Logger logger = LoggerFactory.getLogger(Connector.class);
         private String userAgent = DEFAULT_USER_AGENT;
@@ -65,17 +67,34 @@ public class HtmlFetcher {
             return document;
         }
 
+        /**
+         * Sets the HTTP user agent used for requests.
+         *
+         * @param newUserAgent the user agent header value
+         * @return the current connector instance
+         */
         public Connector userAgent(String newUserAgent) {
             userAgent = newUserAgent;
             return this;
         }
 
+        /**
+         * Sets the request timeout in milliseconds.
+         *
+         * @param newTimeout the maximum time allowed for the request
+         * @return the current connector instance
+         */
         public Connector timeout(int newTimeout) {
             timeout = newTimeout;
             return this;
         }
     }
 
+    /**
+     * Creates a connector with the library default user agent and timeout.
+     *
+     * @return a new connector instance
+     */
     public static Connector connector() {
         return new Connector();
     }

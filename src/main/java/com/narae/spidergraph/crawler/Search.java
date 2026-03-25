@@ -16,7 +16,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.LongSupplier;
+import java.util.function.Predicate;
 
 /**
  * Internal crawler entry point used to traverse pages and build a {@link PageGraph}.
@@ -79,6 +81,10 @@ public class Search {
      * @return a future completed with the shared {@link PageGraph} once the crawl branch finishes
      */
     static CompletableFuture<PageGraph> async(String url, int depth, CrawlerSettings settings) {
+        if (shouldStop(settings)) {
+            return CompletableFuture.completedFuture(pageGraph);
+        }
+
         // if already visited or maxDepth is reached stop
         if (visited.contains(url) || depth > settings.getMaxDepth()) {
             return CompletableFuture.completedFuture(pageGraph);
@@ -97,8 +103,12 @@ public class Search {
             PageNode currentPageNote = pageGraph.getOrCreate(url);
             currentPageNote.setContent(document.title(), document.text());
 
+            if (invokeCrawlStepHook(settings, currentPageNote, depth)) {
+                return CompletableFuture.completedFuture(pageGraph);
+            }
+
             if (depth == settings.getMaxDepth()) {
-                return CompletableFuture.completedFuture(null);
+                return CompletableFuture.completedFuture(pageGraph);
             }
 
             // Fetches all links present on the current page
@@ -107,6 +117,10 @@ public class Search {
             List<CompletableFuture<PageGraph>> futures = new ArrayList<>();
 
             for (Element link : links) {
+                if (shouldStop(settings)) {
+                    break;
+                }
+
                 String currentUrl = getAndVerifyUrl(settings, link);
 
                 if (currentUrl == null)
@@ -140,6 +154,8 @@ public class Search {
      * @return the shared {@link PageGraph} populated during the crawl
      */
     static PageGraph sync(String url, int depth, CrawlerSettings settings) {
+        if (shouldStop(settings)) return pageGraph;
+
         if (visited.contains(url) || depth > settings.getMaxDepth()) return pageGraph;
 
         visited.add(url);
@@ -152,11 +168,17 @@ public class Search {
         PageNode currentNode = pageGraph.getOrCreate(url);
         currentNode.setContent(document.title(), document.text());
 
+        if (invokeCrawlStepHook(settings, currentNode, depth)) return pageGraph;
+
         if (depth == settings.getMaxDepth()) return pageGraph;
 
         Elements links = document.select("a[href]");
 
         for (Element link : links) {
+            if (shouldStop(settings)) {
+                break;
+            }
+
             String currentUrl = getAndVerifyUrl(settings, link);
 
             if (currentUrl == null)
@@ -266,5 +288,23 @@ public class Search {
                 .userAgent(settings.getUserAgent())
                 .timeout(settings.getTimeout())
                 .fetch(url);
+    }
+
+    private static boolean invokeCrawlStepHook(CrawlerSettings settings, PageNode currentNode, int depth) {
+        Predicate<CrawlStepContext> crawlStepHook = settings.getCrawlStepHook();
+        if (crawlStepHook == null) {
+            return false;
+        }
+
+        boolean shouldContinue = crawlStepHook.test(new CrawlStepContext(currentNode, depth, pageGraph));
+        if (!shouldContinue) {
+            settings.getStopRequested().set(true);
+        }
+        return !shouldContinue;
+    }
+
+    private static boolean shouldStop(CrawlerSettings settings) {
+        AtomicBoolean stopRequested = settings.getStopRequested();
+        return stopRequested != null && stopRequested.get();
     }
 }

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 
 import static com.narae.spidergraph.utils.Constants.*;
 
@@ -25,6 +26,7 @@ public class SpiderGraph {
         private String rootHost;
         private static String urlPrefix;
         private static boolean verifyRootHost = DEFAULT_VERIFY_ROOT_HOST;
+        private Predicate<CrawlStepContext> crawlStepHook;
         private String userAgent = DEFAULT_USER_AGENT;
         private int timeout = DEFAULT_TIMEOUT;
         private int maxDepth = DEFAULT_MAX_DEPTH;
@@ -68,6 +70,7 @@ public class SpiderGraph {
             settings.setRootHost(rootHost);
             settings.setUrlPrefix(urlPrefix);
             settings.setRequestDelay(requestDelay);
+            settings.setCrawlStepHook(crawlStepHook);
 
             logger.info("Configurations timeout={}, userAgent={} and maxDepth={}", timeout, userAgent, maxDepth);
             logger.info("Root host={}", rootHost);
@@ -84,6 +87,18 @@ public class SpiderGraph {
         public Crawler setRequestDelay(int requestDelay) {
             logger.info("Setting request delay={}", requestDelay);
             this.requestDelay = requestDelay;
+            return this;
+        }
+
+        /**
+         * Sets a callback invoked after each page fetch/parse step.
+         *
+         * @param crawlStepHook predicate that can stop the crawl by returning {@code false}
+         * @return the current crawler instance
+         */
+        public Crawler setCrawlStepHook(Predicate<CrawlStepContext> crawlStepHook) {
+            this.crawlStepHook = crawlStepHook;
+            logger.info("Set crawl step hook={}", crawlStepHook != null);
             return this;
         }
 
