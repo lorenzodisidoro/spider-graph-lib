@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.narae.spidergraph</groupId>
   <artifactId>spider-graph-lib</artifactId>
-  <version>1.0.3</version>
+  <version>1.0.4</version>
   <packaging>jar</packaging>
   <name>Spider Graph Lib</name>
   <description>Java library for crawling a website and building an in-memory graph of pages and links.</description>
@@ -25,7 +25,7 @@
     <url>https://github.com/lorenzodisidoro/spider-graph-lib</url>
     <connection>scm:git:https://github.com/lorenzodisidoro/spider-graph-lib.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/lorenzodisidoro/spider-graph-lib.git</developerConnection>
-    <tag>v1.0.3</tag>
+    <tag>v1.0.4</tag>
   </scm>
   <build>
     <plugins>

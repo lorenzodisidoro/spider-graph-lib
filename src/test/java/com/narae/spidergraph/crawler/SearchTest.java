@@ -35,6 +35,13 @@ public class SearchTest {
     }
 
     @Test
+    public void verifyUrl() throws Exception {
+        PageGraph graph = Search.sync("https://fly.io/docs/about/pricing/", 0, settings(1, true, null));
+
+        assertNotNull(graph);
+    }
+
+    @Test
     public void syncBuildsGraphFromMockedHtmlFetcher() throws Exception {
         Map<String, Document> documents = new HashMap<>();
         Document rootDocument = html("https://example.com/root", "Root", "<a href='/child'>Child</a>");
@@ -130,7 +137,7 @@ public class SearchTest {
         List<Long> fetchTimes = new CopyOnWriteArrayList<>();
 
         Search.setClock(now::get);
-        Search.setSleeper(delay -> now.addAndGet(delay));
+        Search.setSleeper(now::addAndGet);
         Search.setDocumentFetcher((url, settings) -> {
             fetchTimes.add(now.get());
             return documents.get(url);
@@ -164,7 +171,7 @@ public class SearchTest {
         List<Long> fetchTimes = new ArrayList<>();
 
         Search.setClock(now::get);
-        Search.setSleeper(delay -> now.addAndGet(delay));
+        Search.setSleeper(now::addAndGet);
         Search.setDocumentFetcher((url, settings) -> {
             fetchTimes.add(now.get());
             return documents.get(url);

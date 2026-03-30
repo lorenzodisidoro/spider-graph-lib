@@ -17,10 +17,11 @@ public class PageNodeTest extends TestCase {
     public void testShouldSetAndGetContent() {
         PageNode node = new PageNode("https://example.com");
 
-        node.setContent("Example Title", "Example Text");
+        node.setContent("Example Title", "Example Text", "<b>Example Text</b>");
 
         assertEquals("Example Title", node.getTitle());
         assertEquals("Example Text", node.getText());
+        assertEquals("<b>Example Text</b>", node.getHtml());
     }
 
     public void testShouldAddOutgoingNode() {

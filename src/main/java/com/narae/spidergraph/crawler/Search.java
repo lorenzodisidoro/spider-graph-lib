@@ -101,7 +101,7 @@ public class Search {
 
             logger.info("Get or create page node in async method and set the page content for {}", url);
             PageNode currentPageNote = pageGraph.getOrCreate(url);
-            currentPageNote.setContent(document.title(), document.text());
+            currentPageNote.setContent(document.title(), document.text(), document.html());
 
             if (invokeCrawlStepHook(settings, currentPageNote, depth)) {
                 return CompletableFuture.completedFuture(pageGraph);
@@ -166,7 +166,7 @@ public class Search {
 
         logger.info("Get or create page node in sync method and set the page content for {}", url);
         PageNode currentNode = pageGraph.getOrCreate(url);
-        currentNode.setContent(document.title(), document.text());
+        currentNode.setContent(document.title(), document.text(), document.html());
 
         if (invokeCrawlStepHook(settings, currentNode, depth)) return pageGraph;
 
